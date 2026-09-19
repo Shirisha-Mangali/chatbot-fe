@@ -1,3 +1,5 @@
+import type { Message } from "../types/message";
+
 const API_BASE_URL = "http://localhost:8000";
 
 export async function sendMessage(message: string): Promise<string> {
@@ -20,4 +22,14 @@ export async function sendMessage(message: string): Promise<string> {
   }
 
   return data.reply;
+}
+
+export async function fetchHistory(): Promise<Message[]> {
+  const response = await fetch(`${API_BASE_URL}/api/messages`);
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  return response.json();
 }

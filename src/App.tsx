@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Message } from "./types/message";
-import { sendMessage } from "./services/chatApi";
+import { fetchHistory, sendMessage } from "./services/chatApi";
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchHistory()
+      .then(setMessages)
+      .catch(() => setError("Unable to load conversation history."));
+  }, []);
 
   async function handleSend() {
     const trimmed = input.trim();
