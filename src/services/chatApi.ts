@@ -1,14 +1,50 @@
-import type { Message } from "../types/message";
+import type { Attachment, Conversation, Message } from "../types/message";
 
 const API_BASE_URL = "http://localhost:8000";
 
-export async function sendMessage(message: string): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/api/chat`, {
+export async function listConversations(): Promise<Conversation[]> {
+  const response = await fetch(`${API_BASE_URL}/api/conversations`);
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function createConversation(): Promise<Conversation> {
+  const response = await fetch(`${API_BASE_URL}/api/conversations`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function fetchHistory(conversationId: string): Promise<Message[]> {
+  const response = await fetch(`${API_BASE_URL}/api/conversations/${conversationId}/messages`);
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function sendMessage(
+  conversationId: string,
+  message: string,
+  attachment?: Attachment
+): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/conversations/${conversationId}/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify({ message, attachment }),
   });
 
   if (!response.ok) {
@@ -22,14 +58,4 @@ export async function sendMessage(message: string): Promise<string> {
   }
 
   return data.reply;
-}
-
-export async function fetchHistory(): Promise<Message[]> {
-  const response = await fetch(`${API_BASE_URL}/api/messages`);
-
-  if (!response.ok) {
-    throw new Error(`Request failed with status ${response.status}`);
-  }
-
-  return response.json();
 }
